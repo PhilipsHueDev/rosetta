@@ -37,6 +37,11 @@ class RosettaStoneGenerator extends GeneratorForAnnotation<Stone> {
         .getField("path")
         .toStringValue();
 
+    String package = element.metadata.first
+        .computeConstantValue()
+        .getField("package")
+        ?.toStringValue();
+
     await checkDirectoryExists(path);
 
     var className = element.name;
@@ -62,7 +67,7 @@ class RosettaStoneGenerator extends GeneratorForAnnotation<Stone> {
         ..body.addAll([
           generateDelegate(className, languages),
           generateKeysClass(keyMap.keys.toList()),
-          generateHelper(className, path, keyMap, interceptors),
+          generateHelper(className, package, path, keyMap, interceptors),
         ]),
     );
 
