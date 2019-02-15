@@ -1,6 +1,6 @@
 part of 'rosetta_generator.dart';
 
-Class generateHelper(String className, String path,
+Class generateHelper(String className, String package, String path,
     Map<String, List<String>> keyMap, List<MethodElement> interceptors) {
   return Class(
     (b) => b
@@ -17,7 +17,7 @@ Class generateHelper(String className, String path,
           ..name = _translationsFieldName
           ..type = _mapOf(stringType, stringType)),
       )
-      ..methods.add(generateLoader(path))
+      ..methods.add(generateLoader(package, path))
       ..methods.add(generateTranslationMethod())
       ..methods.update((methods) {
         if (interceptors.isEmpty) {
@@ -37,9 +37,10 @@ Class generateHelper(String className, String path,
   );
 }
 
-Method generateLoader(String path) {
+Method generateLoader(String package, String path) {
   var assetLoader = refer("rootBundle").property("loadString");
   var decodeJson = refer("json").property("decode");
+  var packagePath = package.isNotEmpty ? "packages/$package" : "";
 
   return Method(
     (mb) => mb
@@ -52,7 +53,7 @@ Method generateLoader(String path) {
       ..requiredParameters.add(localeParameter)
       ..body = Block.of([
         assetLoader
-            .call([literalString("$path/\${$_localeName.languageCode}.json")])
+            .call([literalString("$packagePath/${path.replaceAll("lib/", "")}/\${$_localeName.languageCode}.json")])
             .awaited
             .assignVar(_loadJsonStr)
             .statement,
